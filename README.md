@@ -1,2 +1,4 @@
 # mandelbrot
-generating mandelbrot image through multithreading.  java swing guid
+generating mandelbrot image through multithreading.  java swing gui
+testing git((ls
+))
