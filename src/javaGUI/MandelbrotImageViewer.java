@@ -9,106 +9,74 @@ import java.awt.event.MouseWheelEvent;
  */
 public class MandelbrotImageViewer  extends JFrame{
     MandelbrotImagePanel mandelbrotImagePanel;
-
+    MandelbrotImageGenerator mandelbrotImageGenerator;
+    JButton generateButton;
+    JButton clearButton;
+    JLabel menuLabel;
     public MandelbrotImageViewer(){
 
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.getContentPane().setSize(500,500);
         this.pack();
-        Dimension minDim = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension minDim = new Dimension( (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 0.75),(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.75));
         this.setMinimumSize(minDim);
+        mandelbrotImageGenerator = new MandelbrotImageGenerator(this);
+        mandelbrotImagePanel = new MandelbrotImagePanel(this, mandelbrotImageGenerator);
 
-        mandelbrotImagePanel = new MandelbrotImagePanel("C:/Users/Jay/CLionProjects/340Mandelbrot/mandelbrot/src/javaGUI/image.png");
         addMenu();
-
-
-
-
         this.add(mandelbrotImagePanel);
-
-
         this.setVisible(true);
     }
 
+    public void enableButtons(){
+        generateButton.setEnabled(true);
+        clearButton.setEnabled(true);
+    }
+
+    public void disableButtons(){
+        generateButton.setEnabled(false);
+        clearButton.setEnabled(false);
+    }
+
+    public void displayStatus(String status){
+        this.menuLabel.setText(status);
+    }
+
+
+
     private void addMenu(){
         JMenuBar menuBar = new JMenuBar();
-        JButton generateButton = new JButton("Generate");
-        //generateButton.setVisible(false);
+        generateButton = new JButton("Generate");
         menuBar.add(generateButton);
         generateButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 super.mouseClicked(mouseEvent);
-                System.out.println("Clicked");
+                System.out.println("Generate Clicked");
                 System.out.println("" + mandelbrotImagePanel.getMinX());
                 System.out.println("" + mandelbrotImagePanel.getMaxX());
                 System.out.println("" + mandelbrotImagePanel.getMinY());
                 System.out.println("" + mandelbrotImagePanel.getMaxY());
-
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent mouseEvent) {
-                super.mousePressed(mouseEvent);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent mouseEvent) {
-                super.mouseReleased(mouseEvent);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent mouseEvent) {
-                super.mouseEntered(mouseEvent);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent mouseEvent) {
-                super.mouseExited(mouseEvent);
-            }
-
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-                super.mouseWheelMoved(mouseWheelEvent);
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
-                super.mouseDragged(mouseEvent);
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent mouseEvent) {
-                super.mouseMoved(mouseEvent);
-            }
-
-            @Override
-            public int hashCode() {
-                return super.hashCode();
-            }
-
-            @Override
-            public boolean equals(Object o) {
-                return super.equals(o);
-            }
-
-            @Override
-            protected Object clone() throws CloneNotSupportedException {
-                return super.clone();
-            }
-
-            @Override
-            public String toString() {
-                return super.toString();
-            }
-
-            @Override
-            protected void finalize() throws Throwable {
-                super.finalize();
+                mandelbrotImagePanel.generateNew();
+                disableButtons();
             }
         });
+        clearButton = new JButton("Clear");
+        menuBar.add(clearButton);
+        clearButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                super.mouseClicked(mouseEvent);
+                mandelbrotImagePanel.clear();
+                disableButtons();
+            }
+        });
+        disableButtons();
+
+        menuLabel = new JLabel();
+        menuBar.add(menuLabel);
+
         this.setJMenuBar(menuBar);
     }
 }

@@ -15,11 +15,92 @@ import java.io.IOException;
  */
 public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionListener,MouseListener{
 
+    MandelbrotImageGenerator mandelbrotImageGenerator;
 
+    private final String imageName = "image.png";
+    private final int X_PIXELS = 3500;
+    private final int Y_PIXELS = 2000;
+
+    double cartesianXMin;
+    double cartesianXMax;
+    double cartesianYMin;
+    double cartesianYMax;
+
+    boolean rectangleDrawn = false;
     int minX;
     int minY;
     int maxX;
     int maxY;
+
+    Point selectionPoint;
+
+    boolean mousePressed;
+
+    MandelbrotImageViewer frame;
+    public MandelbrotImagePanel(MandelbrotImageViewer frame, MandelbrotImageGenerator mandelbrotImageGenerator){
+        //this.add(new JLabel(new ImageIcon(imageName)));
+        System.out.println(imageName);
+        this.frame = frame;
+        this.mandelbrotImageGenerator = mandelbrotImageGenerator;
+        this.mandelbrotImageGenerator.generateStandardImage();
+
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
+
+
+        cartesianXMin = -2.5;
+        cartesianXMax = 1;
+        cartesianYMin = -1;
+        cartesianYMax = 1;
+
+        mousePressed = true;
+        minX = -1;
+        minY = -1;
+        maxX = -1;
+        maxY = -1;
+    }
+
+
+    public void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        super.paintComponent(g);
+        try{
+            BufferedImage background = ImageIO.read(new File(imageName));
+            g.drawImage(background, 0,0, this.getWidth(), this.getHeight(), null);
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+        g2.setStroke(new BasicStroke(3));
+        g2.setColor(Color.green);
+
+        double height = 1.0 * Y_PIXELS / X_PIXELS * (maxX - minX);
+        g2.drawRoundRect( minX, minY, maxX - minX, (int)height,8,8);
+
+    }
+
+    public void clear(){
+        minX = -1;
+        minY = -1;
+        maxX = -1;
+        maxY = -1;
+        super.paint(getGraphics());
+        rectangleDrawn = false;
+        frame.disableButtons();
+    }
+
+    public void generateNew(){
+        double width = this.getWidth();
+        double height = this.getHeight();
+        mandelbrotImageGenerator.generateZoomedImage(-2.5,1,-1,1);
+
+
+
+
+
+
+    }
+
 
     public int getMinX() {
         return minX;
@@ -36,41 +117,6 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
     public int getMaxY() {
         return maxY;
     }
-    Point selectionPoint;
-    String imageName;
-    boolean mousePressed;
-
-    public MandelbrotImagePanel(String imageName){
-        //this.add(new JLabel(new ImageIcon(imageName)));
-        System.out.println(imageName);
-        this.imageName = imageName;
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
-
-        mousePressed = true;
-        minX = -1;
-        minY = -1;
-        maxX = -1;
-        maxY = -1;
-    }
-
-
-    public void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        super.paintComponent(g);
-        try{
-            BufferedImage background = ImageIO.read(new File(imageName));
-            g.drawImage(background, 0,0, null);
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
-        g2.setStroke(new BasicStroke(5));
-        g2.setColor(Color.green);
-        g2.drawRoundRect( minX, minY, maxX - minX, maxY - minY,15,15);
-
-    }
-
 
 
     @Override
@@ -82,7 +128,9 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
     }
     @Override
     public void mouseReleased(MouseEvent e){
-
+        if(rectangleDrawn){
+            frame.enableButtons();
+        }
     }
     @Override
     public void mouseDragged(MouseEvent e){
@@ -95,6 +143,8 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
 
         if(mousePressed == true) {
             super.paint(getGraphics());
+            rectangleDrawn = true;
+
             //System.out.println("Mouse dragged to " + endX + ", " + endY);
         }
     }
