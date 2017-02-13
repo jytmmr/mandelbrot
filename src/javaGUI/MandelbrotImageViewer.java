@@ -9,7 +9,6 @@ import java.awt.event.MouseWheelEvent;
  */
 public class MandelbrotImageViewer  extends JFrame{
     MandelbrotImagePanel mandelbrotImagePanel;
-    MandelbrotImageGenerator mandelbrotImageGenerator;
     JButton generateButton;
     JButton clearButton;
     JLabel menuLabel;
@@ -19,11 +18,11 @@ public class MandelbrotImageViewer  extends JFrame{
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.getContentPane().setSize(500,500);
         this.pack();
+        MandelbrotImageGenerator mandelbrotImageGenerator = new MandelbrotImageGenerator(this);
         Dimension minDim = new Dimension( (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 0.75),(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.75));
         this.setMinimumSize(minDim);
-        mandelbrotImageGenerator = new MandelbrotImageGenerator(this);
-        mandelbrotImagePanel = new MandelbrotImagePanel(this, mandelbrotImageGenerator);
 
+        mandelbrotImagePanel = new MandelbrotImagePanel(this, mandelbrotImageGenerator);
         addMenu();
         this.add(mandelbrotImagePanel);
         this.setVisible(true);
@@ -44,6 +43,10 @@ public class MandelbrotImageViewer  extends JFrame{
     }
 
 
+    public void regenerateImage(){
+        mandelbrotImagePanel.regenerateImage();
+    }
+
 
     private void addMenu(){
         JMenuBar menuBar = new JMenuBar();
@@ -58,7 +61,7 @@ public class MandelbrotImageViewer  extends JFrame{
                 System.out.println("" + mandelbrotImagePanel.getMaxX());
                 System.out.println("" + mandelbrotImagePanel.getMinY());
                 System.out.println("" + mandelbrotImagePanel.getMaxY());
-                mandelbrotImagePanel.generateNew();
+                mandelbrotImagePanel.generateNewZoomed();
                 disableButtons();
             }
         });

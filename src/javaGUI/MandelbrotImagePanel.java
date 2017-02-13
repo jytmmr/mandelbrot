@@ -1,4 +1,4 @@
-import com.sun.corba.se.impl.orbutil.graph.Graph;
+
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -89,16 +89,20 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
         frame.disableButtons();
     }
 
-    public void generateNew(){
+    public void generateNewZoomed(){
         double width = this.getWidth();
         double height = this.getHeight();
-        mandelbrotImageGenerator.generateZoomedImage(-2.5,1,-1,1);
+        mandelbrotImageGenerator.generateZoomedImage(-2,.5,-0.5,0.5);
+
+        System.out.println("Generating new image");
 
 
 
 
+    }
 
-
+    public void regenerateImage(){
+        super.paint(getGraphics());
     }
 
 

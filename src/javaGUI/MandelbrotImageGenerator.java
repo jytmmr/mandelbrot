@@ -10,7 +10,7 @@ public class MandelbrotImageGenerator{
     MandelbrotImageViewer mandelbrotImageViewer;
     MandelbrotImagePanel mandelbrotImagePanel;
 
-    public MandelbrotImageGenerator(MandelbrotImageViewer mandelbrotImageViewer, MandelbrotImagePanel mandelbrotImagePanel){
+    public MandelbrotImageGenerator(MandelbrotImageViewer mandelbrotImageViewer){
         this.mandelbrotImageViewer = mandelbrotImageViewer;
         this.mandelbrotImagePanel = mandelbrotImagePanel;
 
@@ -21,7 +21,7 @@ public class MandelbrotImageGenerator{
             //ProcessBuilder pb = new ProcessBuilder("echo", "");
             Process compile = Runtime.getRuntime().exec("gcc -o CompiledMandelbrot mandelbrotcalculator.c -pthread -lm ");
             compile.waitFor();
-            Process run = Runtime.getRuntime().exec("./CompiledMandelbrot");
+            Process run = Runtime.getRuntime().exec("./CompiledMandelbrot '-2.5' '1' '-1' '1'");
             run.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(run.getInputStream()));
             while(reader.readLine() != null){
@@ -31,7 +31,7 @@ public class MandelbrotImageGenerator{
 
             System.out.println("done");
 
-            //have to display the new image yet
+            displayNewImage();
 
 
         }
@@ -49,7 +49,7 @@ public class MandelbrotImageGenerator{
             //ProcessBuilder pb = new ProcessBuilder("echo", "");
             Process compile = Runtime.getRuntime().exec("gcc -o CompiledMandelbrot mandelbrotcalculator.c -pthread -lm ");
             compile.waitFor();
-            Process run = Runtime.getRuntime().exec("./CompiledMandelbrot");
+            Process run = Runtime.getRuntime().exec("./CompiledMandelbrot'" + xMin + "' '" + xMax + "' '" + yMin + "' '" + yMax + "'");
             run.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(run.getInputStream()));
             while(reader.readLine() != null){
@@ -73,7 +73,8 @@ public class MandelbrotImageGenerator{
     }
 
     public void displayNewImage(){
-
+        mandelbrotImageViewer.regenerateImage();
     }
 
 }
+
