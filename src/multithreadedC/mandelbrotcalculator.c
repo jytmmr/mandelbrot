@@ -194,6 +194,7 @@ int main(int argc, char * argv[]){
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     printf("File output took %f seconds.\n", elapsed );
 
+    execl("/usr/bin/commit", "/usr/bin/commit", "image.ppm", "image.png", (char *)NULL);
     free(pixelArray);
 
 }
