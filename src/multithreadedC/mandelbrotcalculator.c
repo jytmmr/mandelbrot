@@ -120,6 +120,12 @@ void* mandelbrot_thread(void *data){
 }
 
 int main(int argc, char * argv[]){
+
+    xmin = atof(argv[1]);
+    xmax = atof(argv[2]);
+    ymin = atof(argv[3]);
+    ymax = atof(argv[4]);
+
     FILE *fp2;
     fp2 = fopen(fileName2, "w+");
     fprintf(fp2, "P3 \n%d %d \n255\n\n", xpixels, ypixels);
