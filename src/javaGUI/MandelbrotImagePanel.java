@@ -82,14 +82,14 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
 
     }
 
-    public void clear(){
+    public void clearAndRegenerate(){
         minX = -1;
         minY = -1;
         maxX = -1;
         maxY = -1;
         super.paint(getGraphics());
         rectangleDrawn = false;
-        frame.disableButtons();
+        //frame.disableButtons();
     }
 
     public void generateNewZoomed(){
@@ -224,16 +224,10 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
                             .redirectErrorStream(true)
                             .start();
             run.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(run.getInputStream()));
-            while(reader.readLine() != null){
-                //mandelbrotImageViewer.displayStatus(reader.readLine());
-                System.out.println(reader.readLine());
-            }
 
             System.out.println("Generated Standard Image.  Painting");
 
-            clear();
-            super.paint(getGraphics());
+            clearAndRegenerate();
             cartesianXMin = -2.5;
             cartesianXMax = 1;
             cartesianYMin = -1;
@@ -265,18 +259,14 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
                             .redirectErrorStream(true)
                             .start();
             run.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(run.getInputStream()));
-            while (reader.readLine() != null) {
-                //mandelbrotImageViewer.displayStatus(reader.readLine());
-                System.out.println(reader.readLine());
-            }
+
 
             System.out.println("Generated Zoomed Image.  Painting.");
 
             frame.enableOriginalButton();
 
-            clear();
-            super.paint(getGraphics());
+
+            clearAndRegenerate();
 
 
         } catch (Exception e) {
