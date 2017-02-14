@@ -1,0 +1,6 @@
+#!/bin/bash
+echo 'Compiling mandelbrotCalculator.c'
+gcc -o CompiledMandelbrot mandelbrotcalculator.c -pthread -lm
+echo 'Compiling and running MandelbrotGUI.java'
+javac MandelbrotGUI.java 
+java MandelbrotGUI
