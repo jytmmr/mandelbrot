@@ -7,8 +7,7 @@ import java.io.BufferedReader;
  */
 public class MandelbrotGUI {
     public static void main(String[] args) {
-
+        // initializes MandelbrotImage Viewer
         MandelbrotImageViewer mandelbrotImageViewer = new MandelbrotImageViewer();
-
     }
 }

@@ -8,11 +8,15 @@ import java.awt.event.MouseEvent;
  */
 public class MandelbrotImageViewer  extends JFrame{
     MandelbrotImagePanel mandelbrotImagePanel;
-
     JButton generateButton;
     JButton clearButton;
     JButton originalButton;
     JLabel menuLabel;
+
+    /**
+     * Constructor for MandelbrotImageViewer
+     * inits new ImagePanel, adds menu buttons...
+     */
     public MandelbrotImageViewer(){
 
 
@@ -29,16 +33,25 @@ public class MandelbrotImageViewer  extends JFrame{
         this.setVisible(true);
     }
 
+    /**
+     * Enables generate and clear buttons
+     */
     public void enableButtons(){
         generateButton.setEnabled(true);
         clearButton.setEnabled(true);
     }
-
+    /**
+     * Disables generate and clear buttons
+     */
     public void disableButtons(){
         generateButton.setEnabled(false);
         clearButton.setEnabled(false);
     }
 
+    /**
+     * displays new text of JLabel
+     * @param status
+     */
     public void displayStatus(String status){
         this.menuLabel.setText(status);
     }
@@ -48,7 +61,10 @@ public class MandelbrotImageViewer  extends JFrame{
     }
 
 
-
+    /**
+     * Called from Constructor
+     * Adds menu buttons, labels
+     */
     private void addMenu(){
         JMenuBar menuBar = new JMenuBar();
         generateButton = new JButton("Generate");
@@ -57,12 +73,7 @@ public class MandelbrotImageViewer  extends JFrame{
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 super.mouseClicked(mouseEvent);
-                System.out.println("Generate Clicked");
-                System.out.println("" + mandelbrotImagePanel.getMinX());
-                System.out.println("" + mandelbrotImagePanel.getMaxX());
-                System.out.println("" + mandelbrotImagePanel.getMinY());
-                System.out.println("" + mandelbrotImagePanel.getMaxY());
-                mandelbrotImagePanel.generateNewZoomed();
+                mandelbrotImagePanel.initZoomedBoundsAndGenerate();
                 disableButtons();
             }
         });
@@ -87,11 +98,12 @@ public class MandelbrotImageViewer  extends JFrame{
                 originalButton.setEnabled(false);
             }
         });
+
         originalButton.setEnabled(false);
 
         menuBar.add(originalButton);
 
-        menuLabel = new JLabel();
+        menuLabel = new JLabel("Click and drag to generate a scaled rectangle to zoom in.  Then, click generate.  Click Original to return to original bound (-2.5, 1, -1,1).");
         menuBar.add(menuLabel);
 
         disableButtons();

@@ -7,10 +7,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 
 /**
@@ -40,6 +38,11 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
     boolean mousePressed;
 
     MandelbrotImageViewer frame;
+
+    /**
+     * Constructor
+     * @param frame
+     */
     public MandelbrotImagePanel(MandelbrotImageViewer frame){
         //this.add(new JLabel(new ImageIcon(imageName)));
         System.out.println(imageName);
@@ -62,7 +65,11 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
         maxY = -1;
     }
 
-
+    /**
+     * paints the JLayeredPane with image and rectangles
+     * invoked by super's paint() method
+     * @param g
+     */
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         super.paintComponent(g);
@@ -82,6 +89,9 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
 
     }
 
+    /**
+     * Clears rectangle and repaints image
+     */
     public void clearAndRegenerate(){
         minX = -1;
         minY = -1;
@@ -89,16 +99,16 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
         maxY = -1;
         super.paint(getGraphics());
         rectangleDrawn = false;
-        //frame.disableButtons();
     }
 
-    public void generateNewZoomed(){
+    /**
+     * Generates new bounds for the new image(up to 15 decimal places of precision)
+     * Then called the
+     */
+    public void initZoomedBoundsAndGenerate(){
+
         double width = this.getWidth();
         double height = this.getHeight();
-        System.out.println("The width is " + width);
-        System.out.println("The height is " + height);
-
-
 
 
         double cartesianXWidth = Math.abs(cartesianXMax - cartesianXMin);
@@ -106,11 +116,9 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
 
         double viewerWidthIncrement = cartesianXWidth / width;
         double viewerHeightIncrement = cartesianYHeight / height;
-        System.out.println("Viewer width " +  viewerWidthIncrement);
-        System.out.println("Viewer height " +  viewerHeightIncrement);
 
 
-        DecimalFormat df = new DecimalFormat("###.##########");
+        DecimalFormat df = new DecimalFormat("###.###############");
         double tempCartXMin = cartesianXMin;
         cartesianXMin = Double.valueOf(df.format(viewerWidthIncrement * minX + cartesianXMin));
         cartesianXMax = Double.valueOf(df.format(viewerWidthIncrement * maxX + tempCartXMin));
@@ -118,15 +126,6 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
         cartesianYMin = Double.valueOf(df.format(viewerHeightIncrement * minY + cartesianYMin));
         cartesianYMax = Double.valueOf(df.format(cartesianYMin + (1.0 * Y_PIXELS/X_PIXELS * (Math.abs(cartesianXMax - cartesianXMin)))));
 
-        System.out.println("C X min " +  cartesianXMin);
-        System.out.println("C X max " +  cartesianXMax);
-        System.out.println("C Y min " +  cartesianYMin);
-        System.out.println("C Y max " +  cartesianYMax);
-
-        System.out.println("X min" +  getMinX());
-        System.out.println("X max" +  getMaxX());
-        System.out.println("Y min" +  getMinY());
-        System.out.println("Y max" +  getMaxY());
 
 
         generateZoomedImage(cartesianXMin,cartesianXMax,cartesianYMin,cartesianYMax);
@@ -138,31 +137,15 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
     }
 
 
-
-
-    public int getMinX() {
-        return minX;
-    }
-
-    public int getMinY() {
-        return minY;
-    }
-
-    public int getMaxX() {
-        return maxX;
-    }
-
-    public int getMaxY() {
-        return maxY;
-    }
-
-
+    /**
+     *  MousePressed, MouseReleased, and mouseDragged methods for drawing rectangles on image
+     * @param e
+     */
     @Override
     public void mousePressed(MouseEvent e){
 
         selectionPoint = e.getPoint();
         mousePressed = true;
-        //System.out.println("Mouse pressed at " + selectionPoint.getX() + ", " + selectionPoint.getY());
     }
     @Override
     public void mouseReleased(MouseEvent e){
@@ -185,33 +168,15 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
             super.paint(getGraphics());
             rectangleDrawn = true;
 
-            //System.out.println("Mouse dragged to " + endX + ", " + endY);
         }
     }
 
-    @Override
-    public void mouseMoved(MouseEvent e){
 
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e){
-
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e){
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
+    /**
+     * Generates the Original image with standard bounds
+     */
     public boolean generateStandardImage(){
         try {
-            //ProcessBuilder pb = new ProcessBuilder("echo", "");
             System.out.println("Running mandelbrotcalculator.c with arguments");
             Process compile =
                     new ProcessBuilder(new String[] {"bash", "-c", "gcc -o CompiledMandelbrot mandelbrotcalculator.c -pthread -lm "})
@@ -242,6 +207,15 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
 
         return true;
     }
+
+    /**
+     * Generates a Zoomed image and then paints the new image onto the Panel
+     * @param xMin
+     * @param xMax
+     * @param yMin
+     * @param yMax
+     * @return
+     */
 
     public boolean generateZoomedImage(double xMin, double xMax, double yMin, double yMax) {
         try {
@@ -276,6 +250,33 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
         }
 
         return true;
+    }
+
+
+    /**
+     * Unused methods
+     *
+     */
+
+
+    @Override
+    public void mouseMoved(MouseEvent e){
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e){
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e){
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 
 
