@@ -188,7 +188,7 @@ int main(int argc, char * argv[]){
     printf("\nStarting file output...\n");
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    fp2 = fopen(outputFile, "a");
+    fp = fopen(outputFile, "a");
     int x;
     int y;
     for (y = 0; y < ypixels; y++){
