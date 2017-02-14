@@ -137,10 +137,7 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
         rectangleDrawn = false;
     }
 
-    public void displayImage(){
-        System.out.println("Displaying Image");
-        super.repaint();
-    }
+
 
 
     public int getMinX() {
@@ -235,7 +232,8 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
 
             System.out.println("Generated Standard Image.  Painting");
 
-            super.paintComponent(getGraphics());
+            clear();
+            super.paint(getGraphics());
             cartesianXMin = -2.5;
             cartesianXMax = 1;
             cartesianYMin = -1;
@@ -277,8 +275,8 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
 
             frame.enableOriginalButton();
 
-
-            super.paintComponent(getGraphics());
+            clear();
+            super.paint(getGraphics());
 
 
         } catch (Exception e) {

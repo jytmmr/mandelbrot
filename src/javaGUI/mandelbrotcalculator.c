@@ -109,14 +109,8 @@ void* mandelbrot_thread(void *data){
 
             inMandelbrotSet(x,y,xcoord,ycoord, dataArray);
         }
-
-
-
-
     }
-
     pthread_exit(0);
-
 }
 
 int main(int argc, char * argv[]){
