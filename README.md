@@ -12,4 +12,4 @@ TO-DO
 - Create compilation scripts and remove calling of GCC in the swing GUI
 
 Low Priority
-- Automatically update GUI without window resize
+- ~~Automatically update GUI without window resize~~
