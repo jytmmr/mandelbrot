@@ -103,7 +103,7 @@ public class MandelbrotImageViewer  extends JFrame{
 
         menuBar.add(originalButton);
 
-        menuLabel = new JLabel("Click and drag to generate a scaled rectangle to zoom in.  Then, click generate.  Click Original to return to original bound (-2.5, 1, -1,1).");
+        menuLabel = new JLabel("    Click and drag to generate a scaled rectangle to zoom in.  Then, click generate.  Click Original to return to original bound (-2.5, 1, -1,1).");
         menuBar.add(menuLabel);
 
         disableButtons();

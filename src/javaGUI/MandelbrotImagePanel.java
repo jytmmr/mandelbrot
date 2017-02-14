@@ -178,11 +178,6 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
     public boolean generateStandardImage(){
         try {
             System.out.println("Running mandelbrotcalculator.c with arguments");
-            Process compile =
-                    new ProcessBuilder(new String[] {"bash", "-c", "gcc -o CompiledMandelbrot mandelbrotcalculator.c -pthread -lm "})
-                            .redirectErrorStream(true)
-                            .start();
-            compile.waitFor();
 
             Process run =
                     new ProcessBuilder(new String[] {"bash", "-c", "./CompiledMandelbrot '-2.5' '1' '-1' '1'"})
@@ -222,11 +217,6 @@ public class MandelbrotImagePanel extends JLayeredPane implements MouseMotionLis
             System.out.println("Running mandelbrotcalculator.c with ZOOMED arguments");
 
 
-            Process compile =
-                    new ProcessBuilder(new String[] {"bash", "-c", "gcc -o CompiledMandelbrot mandelbrotcalculator.c -pthread -lm "})
-                            .redirectErrorStream(true)
-                            .start();
-            compile.waitFor();
             System.out.println("./CompiledMandelbrot '" + xMin + "' '" + xMax + "' '" + yMin + "' '" + yMax + "'");
             Process run =
                     new ProcessBuilder(new String[] {"bash", "-c", "./CompiledMandelbrot '" + xMin + "' '" + xMax + "' '" + yMin + "' '" + yMax + "'"})
