@@ -72,11 +72,11 @@ public class MandelbrotImageViewer  extends JFrame{
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 super.mouseClicked(mouseEvent);
-                mandelbrotImagePanel.clear();
+                mandelbrotImagePanel.clearAndRegenerate();
                 disableButtons();
             }
         });
-        disableButtons();
+
 
         originalButton = new JButton("Original");
         originalButton.addMouseListener(new MouseAdapter() {
@@ -93,6 +93,8 @@ public class MandelbrotImageViewer  extends JFrame{
 
         menuLabel = new JLabel();
         menuBar.add(menuLabel);
+
+        disableButtons();
 
         this.setJMenuBar(menuBar);
     }
