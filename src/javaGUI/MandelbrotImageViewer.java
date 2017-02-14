@@ -2,15 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 
 /**
  * Created by Jay on 2/9/2017.
  */
 public class MandelbrotImageViewer  extends JFrame{
     MandelbrotImagePanel mandelbrotImagePanel;
+
     JButton generateButton;
     JButton clearButton;
+    JButton originalButton;
     JLabel menuLabel;
     public MandelbrotImageViewer(){
 
@@ -18,11 +19,11 @@ public class MandelbrotImageViewer  extends JFrame{
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.getContentPane().setSize(500,500);
         this.pack();
-        MandelbrotImageGenerator mandelbrotImageGenerator = new MandelbrotImageGenerator(this);
-        Dimension minDim = new Dimension( (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 0.75),(int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.75));
-        this.setMinimumSize(minDim);
+        Dimension dimension = new Dimension( 1750,1040);
+        this.setMinimumSize(dimension);
+        this.setResizable(false);
 
-        mandelbrotImagePanel = new MandelbrotImagePanel(this, mandelbrotImageGenerator);
+        mandelbrotImagePanel = new MandelbrotImagePanel(this);
         addMenu();
         this.add(mandelbrotImagePanel);
         this.setVisible(true);
@@ -42,10 +43,10 @@ public class MandelbrotImageViewer  extends JFrame{
         this.menuLabel.setText(status);
     }
 
-
-    public void regenerateImage(){
-        mandelbrotImagePanel.regenerateImage();
+    public void enableOriginalButton(){
+        this.originalButton.setEnabled(true);
     }
+
 
 
     private void addMenu(){
@@ -76,6 +77,19 @@ public class MandelbrotImageViewer  extends JFrame{
             }
         });
         disableButtons();
+
+        originalButton = new JButton("Original");
+        originalButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                super.mouseClicked(mouseEvent);
+                mandelbrotImagePanel.generateStandardImage();
+                originalButton.setEnabled(false);
+            }
+        });
+        originalButton.setEnabled(false);
+
+        menuBar.add(originalButton);
 
         menuLabel = new JLabel();
         menuBar.add(menuLabel);

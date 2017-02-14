@@ -20,7 +20,7 @@ double ymax = 1;
 pthread_mutex_t theLock;
 pthread_mutex_t theLockArray;
 // char fileName[] = "imagetest.ppm";
-char fileName2[] = "pixelqueueimagejeremy2.ppm";
+char fileName2[] = "image.ppm";
 
 #define NUMTHREADS 1
 
@@ -200,7 +200,7 @@ int main(int argc, char * argv[]){
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     printf("File output took %f seconds.\n", elapsed );
 
-    execl("/usr/bin/commit", "/usr/bin/commit", "image.ppm", "image.png", (char *)NULL);
+    execl("/usr/bin/convert", "/usr/bin/convert", "image.ppm", "image.png", (char *)NULL);
     free(pixelArray);
 
 }
