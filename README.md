@@ -1,5 +1,6 @@
 # mandelbrot
 An interactive Mandlebrot-set generator utilizing the C pthread library for calculations and a Java swing GUI for interaction.
+Programmed by Micah Adams, Jeremy Klyn, and Jay Timmer.
 
 TO-DO
 ===========
