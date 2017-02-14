@@ -24,6 +24,8 @@ char fileName2[] = "image.ppm";
 
 #define NUMTHREADS 1
 
+//TODO ADD COMMENTS
+
 typedef struct ComplexNumber_t{
     double real;
     double imag;
