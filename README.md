@@ -9,7 +9,7 @@ The repository contains a script to automatically compile and run the GUI interf
 
 Command Line
 ------------
-Compile the mandelbrotcalculator.c code with `gcc -o CompiledMandelbrot mandlebrotcalculator.c -lthread -lm`. You can then run `CompiledMandelbrot [xmin] [xmax] [ymin] [ymax]` to calculate the Mandelbrot set between the given x and y coordinates. 
+Compile the mandelbrotcalculator.c code with `gcc -o CompiledMandelbrot mandlebrotcalculator.c -pthread -lm`. You can then run `CompiledMandelbrot [xmin] [xmax] [ymin] [ymax]` to calculate the Mandelbrot set between the given x and y coordinates. 
 
 TO-DO
 ===========
