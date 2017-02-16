@@ -25,7 +25,7 @@ pthread_mutex_t theLock;		// a lock that controls access to currentPixel
 
 char outputFile[] = "image.ppm";		// output file
 
-#define NUMTHREADS 4
+#define NUMTHREADS 40
 
 /*
  * complex_number_t
