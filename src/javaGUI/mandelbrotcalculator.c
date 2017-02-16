@@ -7,8 +7,8 @@
 
 #define MAX_ITERATIONS 1000
 
-int xpixels = 1920;			//horizontal pixels in output image
-int ypixels = 1080;			//veritcal pixels in output image
+int xpixels = 1750;			//horizontal pixels in output image
+int ypixels = 1000;			//veritcal pixels in output image
 int currentPixel = 0;		//counter for calculations
 int totalPixels;			//the total number of pixels in the image 
 
@@ -151,12 +151,37 @@ void* mandelbrot_thread(void *data){
 }
 
 int main(int argc, char * argv[]){
-	
+    if (!(argc == 5 || argc == 2)){
+        printf("ERROR: incorrect number of arguments. Run with argument --help for help.\n");
+        return 0;
+    }
+    
+    if (argc == 2){
+        // char *strHelp = "--help";
+        if (!strcmp(argv[1], "--help")){
+            printf("USAGE: CompiledMandelbrot [xmin] [xmax] [ymin] [ymax]\n");
+        }
+        else{
+            printf("ERROR: Unrecognized argument. Run with argument --help for help.\n");
+        }
+        return 0;
+    }
+	    
 	//set range of mandlebrot set from arguments
     xmin = atof(argv[1]);
     xmax = atof(argv[2]);
     ymin = atof(argv[3]);
     ymax = atof(argv[4]);
+    
+    if (ymin >= ymax){
+        printf("ERROR: Invalid range for imaginary axis.\n");
+        return 0;
+    }
+    
+    if (xmin >= xmax){
+        printf("ERROR: Invalid range for real axis.\n");
+        return 0;
+    }
     
 	//initialize some values
 	totalPixels	= xpixels * ypixels;
@@ -210,13 +235,13 @@ int main(int argc, char * argv[]){
         }
         fprintf(fp, "\n");		//next line in PPM file
     }
-    
+    fclose(fp);
     //stop timing
     clock_gettime(CLOCK_MONOTONIC, &finish);
     elapsed = (finish.tv_sec - start.tv_sec);
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     printf("File output took %f seconds.\n", elapsed );
-
+    
 	//convert the PPM file to a PNG file to save space
     execl("/usr/bin/convert", "/usr/bin/convert", "image.ppm", "image.png", (char *)NULL);
     free(pixelArray);		//free dynamic array
