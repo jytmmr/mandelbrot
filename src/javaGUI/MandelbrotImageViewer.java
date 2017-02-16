@@ -23,9 +23,9 @@ public class MandelbrotImageViewer  extends JFrame{
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.getContentPane().setSize(500,500);
         this.pack();
-        Dimension dimension = new Dimension( 1750,1040);
-        this.setMinimumSize(dimension);
-        this.setResizable(false);
+        this.setSize(new Dimension( (int)(0.75 * java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()),
+                (int)(0.75 *java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight())));
+
 
         mandelbrotImagePanel = new MandelbrotImagePanel(this);
         addMenu();
