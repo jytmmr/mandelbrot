@@ -6,6 +6,7 @@ Programmed by Micah Adams, Jeremy Klyn, and Jay Timmer.
 USAGE
 =========
 The repository contains a script to automatically compile and run the GUI interface. Naviagte to /mandlebrot/src/javaGUI. Set run permissions on the file `run` and execute the file. You will need `gcc`, `java`, and `javac`, available in your PATH for this stript to execute correctly.
+
 Note: This program was built for Linux, but my work with Bash on Windows. You will have to use an x11 forwarder if you go this route,
 such as Xming. There is no offical support for Windows however.
 
