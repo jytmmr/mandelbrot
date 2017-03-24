@@ -23,3 +23,4 @@ TO-DO
 
 Low Priority
 - ~~Automatically update GUI without window resize~~
+Testing jenkins integration
