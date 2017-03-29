@@ -1,4 +1,4 @@
-FROM jytmmr/myapp:3.0
+FROM jytmmr/myapp:4.0
 
 RUN cd
 RUN /.run
