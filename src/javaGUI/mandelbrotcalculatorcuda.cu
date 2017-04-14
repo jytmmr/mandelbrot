@@ -1,4 +1,4 @@
-#include <pthread.h>
+//#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,10 +6,12 @@
 #include <time.h>
 #include <string.h>
 
-#define MAX_ITERATIONS 1000
+// #define MAX_ITERATIONS 1000
 
-int xpixels = 1750;			//horizontal pixels in output image
-int ypixels = 1000;			//veritcal pixels in output image
+// int xpixels = 175;			//horizontal pixels in output image
+// int ypixels = 100;			//veritcal pixels in output image
+int xpixels = 1400;
+int ypixels = 800;
 int currentPixel = 0;		//counter for calculations
 int totalPixels;			//the total number of pixels in the image 
 
@@ -18,14 +20,12 @@ double xmax;			//	real-imaginary plane, where x is real and y
 double ymin;			//	is imaginary
 double ymax;			//
 
-#define xincrement (xmax - xmin) / xpixels // macro to find increments
-#define yincrement (ymax - ymin) / ypixels
+// #define xincrement (xmax - xmin) / xpixels // macro to find increments
+// #define yincrement (ymax - ymin) / ypixels
 
-pthread_mutex_t theLock;		// a lock that controls access to currentPixel
+//pthread_mutex_t theLock;		// a lock that controls access to currentPixel
 
 char outputFile[] = "image.ppm";		// output file
-
-#define NUMTHREADS 40
 
 /*
  * complex_number_t
@@ -56,7 +56,7 @@ typedef struct pixel_t{
  *OUTPUT
  *	long index in the 1D array
 */
-unsigned long convert_to_2d(int x, int y, int scale) {
+unsigned int convert_to_2d(int x, int y, int scale) {
     return y * scale + x;
 }
 
@@ -71,42 +71,67 @@ unsigned long convert_to_2d(int x, int y, int scale) {
  *	ycoord - imaginary component of complex number
  *	*pixelArray - global array representing output image
 */
-void calculate_mandlebrot_set(int x, int y, double xcoord, double ycoord, pixel_t *pixelArray){
-    complex_number_t z;
-    z.real = 0;
-    z.imag = 0;
-	
-    complex_number_t c;
-    c.real = xcoord;
-    c.imag = ycoord;
+__global__ void calculate_mandlebrot_set( pixel_t *pixelArray, int xpixels, int ypixels, double xmin, double xmax, double ymin, double ymax, int* A){
+    int MAX_ITERATIONS = 1000;
+    double xincrement = (xmax - xmin) / xpixels; // macro to find increments
+    double yincrement = (ymax - ymin) / ypixels;
+    int totalPixels = xpixels * ypixels;
+	printf("tot pix %d\n", totalPixels);
+    A[0] = 10;
+    // int ii;
+    // for( ii = 0; ii < totalPixels; ii++){
+        complex_number_t z;
+        z.real = 0;
+        z.imag = 0;
+        // int x = ii % xpixels;             // x posiiton of the pixel
+        // int y = ii / xpixels;             // y position of the piel
+        complex_number_t c;
+        // c.real = xmin + x * xincrement; // find xcoord here
+        // c.imag = ymin + y * yincrement; // find ycoord here
 
-    pixel_t *currPixel;
-    currPixel = pixelArray + convert_to_2d(x,y,xpixels); //currPixel points to one pixel in pixelArray
+        pixel_t *currPixel;
 
-    int i = 0;
-    while( i < MAX_ITERATIONS ){
+        // currPixel = pixelArray + ii;
+		if (threadIdx.x + blockDim.x * blockIdx.x < xpixels && threadIdx.y + blockDim.y * blockIdx.y < ypixels){
+			int myIndex = (threadIdx.x + blockDim.x * blockIdx.x) + ypixels * (threadIdx.y + blockDim.y * blockIdx.y);
+			currPixel = pixelArray + myIndex;
+			
+			int x = threadIdx.x + blockDim.x * blockIdx.x;             // x posiiton of the pixel
+			int y = threadIdx.y + blockDim.y * blockIdx.y;             // y position of the piel
+			
+			// int myIndex = blockIdx.x * blockDim.x + threadIdx.x;
+			c.real = xmin + x * xincrement; // find xcoord here
+			c.imag = ymin + y * yincrement; // find ycoord here
+			
+			int toBreak = 0;
+			int i = 0;
+			while( i < MAX_ITERATIONS ){
 
-        complex_number_t temp;
+				complex_number_t temp;
 
-        temp.real = z.real;
-        temp.imag = z.imag;
-        z.real = (z.real * z.real) - (z.imag * z.imag) + c.real; //real
-        z.imag = (2*temp.real*temp.imag) + c.imag; // imaginary
-        if(z.real*z.real + z.imag*z.imag > 4){
-            //save colors to Pixel Array
-            (*currPixel).r = (int) 255 * (((1.0*i) / (1.0 * MAX_ITERATIONS)));
-            (*currPixel).g = (int) 255 * sqrt(((1.0*i) / (1.0 * MAX_ITERATIONS)));
-            (*currPixel).b = (int) 50 * sqrt(1.0 - ((1.0*i) / (1.0 * MAX_ITERATIONS)));
-
-            return; //end calculation for current pixel
-        }
-        i++;
-    }
-    // never escapes
-    (*currPixel).r = 0;
-    (*currPixel).g = 0;
-    (*currPixel).b = 0;
-
+				temp.real = z.real;
+				temp.imag = z.imag;
+				z.real = (z.real * z.real) - (z.imag * z.imag) + c.real; //real
+				z.imag = (2*temp.real*temp.imag) + c.imag; // imaginary
+				if(z.real*z.real + z.imag*z.imag > 4){
+					//save colors to Pixel Array
+					(*currPixel).r = (int) 255 * (((1.0*i) / (1.0 * MAX_ITERATIONS)));
+					(*currPixel).g = (int) 255 * sqrt(((1.0*i) / (1.0 * MAX_ITERATIONS)));
+					(*currPixel).b = (int) 50 * sqrt(1.0 - ((1.0*i) / (1.0 * MAX_ITERATIONS)));
+					// printf("%d %d %d\n", (*currPixel).r, (*currPixel).g, (*currPixel).b);
+					toBreak = 1;
+					break; //end calculation for current pixel
+				}
+				i++;
+			}
+			// never escapes
+			if(!toBreak){
+				(*currPixel).r = 0;
+				(*currPixel).g = 0;
+				(*currPixel).b = 0;
+			}
+		}
+    // }
 
 }
 
@@ -116,39 +141,44 @@ void calculate_mandlebrot_set(int x, int y, double xcoord, double ycoord, pixel_
  *INPUTS
  *	*data - a pointer to and array of pixel_t for data output
 */
-void* mandelbrot_thread(void *data){
-    pixel_t* dataArray = (pixel_t*) data;
-    while(1) {		//worker thread continually runs
-        int myPixel;
+cudaError_t calcMandelbrotCuda(pixel_t *data ){
+	cudaError_t cudaStatus;
 
-        pthread_mutex_lock(&theLock);		//lock the next uncalculated pixel
-        myPixel = currentPixel;				//read next uncalculated pixel
-        currentPixel += xpixels;			//increment uncalculated pixel
-        pthread_mutex_unlock(&theLock);		//unlock uncalculated pixel
+    int d_xpixels, d_ypixels;
+    double d_xmin, d_xmax, d_ymin, d_ymax;
+	
+    int* A;
+	
+	dim3 threadsPerBlock(1024,1024);
+	dim3 numBlocks((xpixels + threadsPerBlock.x - 1) / threadsPerBlock.x, (ypixels + threadsPerBlock.y - 1) / threadsPerBlock.y);
+	
+	cudaStatus = cudaSetDevice(0);
+	if (cudaStatus != cudaSuccess) { fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?"); goto Error; }
+	
+    cudaStatus = cudaMallocManaged(&A, sizeof(int));
+    if (cudaStatus != cudaSuccess) { fprintf(stderr, "cudaMalloc failed!"); goto Error; }
+	
+	*A = 0;
 
-        if(myPixel % (totalPixels / 10) == 0 && myPixel != 0)	//some nice user output
-            printf("Calculating... %.0f%%  complete.\n", ((100.0 * myPixel) / totalPixels));
-        if (myPixel >= totalPixels){		//make sure there are still pixels to calculate
-            break;							//if there are no more pixel to calculate, break out of while loop
-        }
+    d_xpixels = xpixels;
+    d_ypixels = ypixels;
 
-        int i;
-        int endPixel = xpixels + myPixel;		//find the row of pixels to calculate
-        for(i = myPixel; i < endPixel; i++){	//for each pixel in the row
-            int x = i % xpixels;				// x posiiton of the pixel
-            int y = i / xpixels;				// y position of the piel
+    d_xmin = xmin;
+    d_xmax = xmax;
+    d_ymin = ymin;
+    d_ymax = ymax;
 
-			// coordinates on the imaginary plane for the pixel
-            double ycoord = ymin + y * yincrement;
-            double xcoord = xmin + x * xincrement;
+	printf("threads.x = %d, threads.y = %d\n", threadsPerBlock.x, threadsPerBlock.y);
+	printf("threads.x = %d, threads.y = %d\n", numBlocks.x, numBlocks.y);
 
-			//run the mandelbrot calculation
-            calculate_mandlebrot_set(x,y,xcoord,ycoord, dataArray);
-        }
-    }
-    
-    //kill the thread
-    pthread_exit(0);
+	calculate_mandlebrot_set<<<numBlocks, threadsPerBlock>>>(data, d_xpixels, d_ypixels, d_xmin, d_xmax, d_ymin, d_ymax, A);
+	
+	cudaDeviceSynchronize();
+	
+	printf("A = %d\n", *A);
+
+    Error:
+    return cudaStatus;
 }
 
 int main(int argc, char * argv[]){
@@ -192,11 +222,8 @@ int main(int argc, char * argv[]){
     fp = fopen(outputFile, "w+");
     fprintf(fp, "P3 \n%d %d \n255\n\n", xpixels, ypixels);
     fclose(fp);
-    
-    int i;
-    pthread_mutex_init(&theLock, NULL);		//initialize mutex
-    pixel_t *pixelArray = (pixel_t*)(malloc(xpixels*ypixels*sizeof(pixel_t))); //allocate pixel array
-    pthread_t computeThreads[NUMTHREADS];
+
+    pixel_t *pixelArray; //= (pixel_t*)(malloc(xpixels*ypixels*sizeof(pixel_t))); 
 
 	//varaibles for timing
     struct timespec start, finish;
@@ -204,16 +231,12 @@ int main(int argc, char * argv[]){
 
     printf("Timing Calculations...\n");
     clock_gettime(CLOCK_MONOTONIC, &start);
-    
-    //start the worker threads
-    for(i = 0; i < NUMTHREADS; i++){
-        pthread_create(&computeThreads[i], NULL, mandelbrot_thread, (void *) pixelArray);
-    }
+
 	
-	//join worker threads
-    for(i = 0; i < NUMTHREADS; i++){
-        pthread_join(computeThreads[i], NULL);
-    }
+	//do cuda here
+	cudaMallocManaged(&pixelArray, totalPixels * sizeof(pixel_t));
+	
+	cudaError_t cudaStatus = calcMandelbrotCuda(pixelArray);
     
     //calculate elapsed time
     clock_gettime(CLOCK_MONOTONIC, &finish);
@@ -228,14 +251,17 @@ int main(int argc, char * argv[]){
     fp = fopen(outputFile, "a");
     int x;
     int y;
+
     for (y = 0; y < ypixels; y++){
         for (x = 0; x < xpixels; x++){
             pixel_t* currPixel;
-            currPixel = &pixelArray[convert_to_2d(x, y, xpixels)];		//get one pixel at a time
+            currPixel = pixelArray + convert_to_2d(x, y, xpixels);		//get one pixel at a time
             fprintf(fp, " %d %d %d    ",(*currPixel).r,(*currPixel).g,(*currPixel).b);		//outpit pixel in PPM format
+			
         }
         fprintf(fp, "\n");		//next line in PPM file
-    }
+
+	}
     fclose(fp);
     //stop timing
     clock_gettime(CLOCK_MONOTONIC, &finish);
@@ -243,8 +269,10 @@ int main(int argc, char * argv[]){
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     printf("File output took %f seconds.\n", elapsed );
     
+	//free(pixelArray);		//free dynamic array
+	
 	//convert the PPM file to a PNG file to save space
     execl("/usr/bin/convert", "/usr/bin/convert", "image.ppm", "image.png", (char *)NULL);
-    free(pixelArray);		//free dynamic array
+    
 
 }
