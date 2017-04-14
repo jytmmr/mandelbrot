@@ -5,8 +5,8 @@
 #include <time.h>
 #include <string.h>
 
-int xpixels = 1750;
-int ypixels = 1000;
+int xpixels = 17500;
+int ypixels = 10000;
 int currentPixel = 0;		//counter for calculations
 int totalPixels;			//the total number of pixels in the image 
 
@@ -15,7 +15,7 @@ double xmax;			//	real-imaginary plane, where x is real and y
 double ymin;			//	is imaginary
 double ymax;			//
 
-char outputFile[] = "image.ppm";		// output file
+char outputFile[] = "imagecuda.ppm";		// output file
 
 /*
  * complex_number_t
@@ -53,13 +53,16 @@ unsigned int convert_to_2d(int x, int y, int scale) {
 /*
  *calculate_mandlebrot_set
  *Determines if a given position on the complex plane diverages or not and
- *outputs the results to a global array.
+ *outputs the results to an  array.
  *INPUTS
- *	x - horizontal position of pixel
- *	y - veritcal position of pixel
- *  xcoord - real component of complex number
- *	ycoord - imaginary component of complex number
- *	*pixelArray - global array representing output image
+ *  *pixelArray - poinjter to array representing output image
+ *	xpixels - number of horizontal in output image
+ *	ypixels - number or vertical pixels in output image
+ *  xmin - smaller cartesian coordinate of the output image in x direction
+ *	xmax - larger cartesian coordinate of the output image in x direction
+ *  ymin - smaller cartesian coordinate of the output image in y direction
+ *	ymax - larger cartesian coordinate of the output image in y direction
+ *	
 */
 __global__ void calculate_mandlebrot_set( pixel_t *pixelArray, int xpixels, int ypixels, double xmin, double xmax, double ymin, double ymax){
     int MAX_ITERATIONS = 1000;
@@ -112,16 +115,16 @@ __global__ void calculate_mandlebrot_set( pixel_t *pixelArray, int xpixels, int 
 }
 
 /*
- *mandlebrot_thread
- *A worker thread that calculates if individual pixels are in the Mandelbrot set.
+ *calcMandelbrotCuda
+ *A helper function that launches calculate_mandlebrot_set kernel.
  *INPUTS
  *	*data - a pointer to and array of pixel_t for data output
 */
 cudaError_t calcMandelbrotCuda(pixel_t *data ){
 	cudaError_t cudaStatus;
 
-    int d_xpixels, d_ypixels;
-    double d_xmin, d_xmax, d_ymin, d_ymax;
+    // int d_xpixels, d_ypixels;
+    // double d_xmin, d_xmax, d_ymin, d_ymax;
 	
 	
 	dim3 threadsPerBlock(32,32,1);
@@ -130,18 +133,18 @@ cudaError_t calcMandelbrotCuda(pixel_t *data ){
 	cudaStatus = cudaSetDevice(0);
 	if (cudaStatus != cudaSuccess) { fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?"); goto Error; }
 
-    d_xpixels = xpixels;
-    d_ypixels = ypixels;
+    // d_xpixels = xpixels;
+    // d_ypixels = ypixels;
 
-    d_xmin = xmin;
-    d_xmax = xmax;
-    d_ymin = ymin;
-    d_ymax = ymax;
+    // d_xmin = xmin;
+    // d_xmax = xmax;
+    // d_ymin = ymin;
+    // d_ymax = ymax;
 
 	printf("threads.x = %d, threads.y = %d\n", threadsPerBlock.x, threadsPerBlock.y);
-	printf("threads.x = %d, threads.y = %d\n", numBlocks.x, numBlocks.y);
+	printf("blocks.x = %d, blocks.y = %d\n", numBlocks.x, numBlocks.y);
 
-	calculate_mandlebrot_set<<<numBlocks, threadsPerBlock>>>(data, d_xpixels, d_ypixels, d_xmin, d_xmax, d_ymin, d_ymax);
+	calculate_mandlebrot_set<<<numBlocks, threadsPerBlock>>>(data, xpixels, ypixels, xmin, xmax, ymin, ymax);
 	cudaStatus = cudaGetLastError();
 	if (cudaStatus != cudaSuccess) { fprintf(stderr, "calculate_mandlebrot_set launch failed: %s\n", cudaGetErrorString(cudaStatus)); goto Error; }
 	
@@ -193,7 +196,7 @@ int main(int argc, char * argv[]){
     fprintf(fp, "P3 \n%d %d \n255\n\n", xpixels, ypixels);
     fclose(fp);
 
-    pixel_t *pixelArray; 
+
 
 	//varaibles for timing
     struct timespec start, finish;
@@ -203,16 +206,35 @@ int main(int argc, char * argv[]){
     clock_gettime(CLOCK_MONOTONIC, &start);
 
 	
+
+
 	//do cuda here
-	cudaMallocManaged(&pixelArray, totalPixels * sizeof(pixel_t));
-	
-	cudaError_t cudaStatus = calcMandelbrotCuda(pixelArray);
-    
+
+    pixel_t *pixelArray = (pixel_t*)(malloc(xpixels*ypixels*sizeof(pixel_t)));  //for cudaMemcpy version
+    pixel_t *d_pixelArray;  //for cudaMemcpy version
+
+    // pixel_t *pixelArray;  //for cudaMallocManaged version
+
+	cudaMalloc(&d_pixelArray, totalPixels * sizeof(pixel_t));  //for cudaMemcpy version
+	// cudaMallocManaged(&pixelArray, totalPixels * sizeof(pixel_t)); //for culaMallocManaged version
+
+	// cudaError_t cudaStatus = calcMandelbrotCuda(pixelArray);  //for cudaMallocManaged version
+    cudaError_t cudaStatus = calcMandelbrotCuda(d_pixelArray); //for cudaMemcpy version
+
     //calculate elapsed time
     clock_gettime(CLOCK_MONOTONIC, &finish);
     elapsed = (finish.tv_sec - start.tv_sec);
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-    printf("Calculations took %f seconds", elapsed);
+    printf("Calculations took %f seconds\n", elapsed);
+
+    printf("\nTiming cudaMemCpy...\n");  //for cudaMemcpy version
+    clock_gettime(CLOCK_MONOTONIC, &start);  //for cudaMemcpy version
+    cudaMemcpy(pixelArray, d_pixelArray, totalPixels*sizeof(pixel_t), cudaMemcpyDeviceToHost); //for cudaMemcpy version
+    clock_gettime(CLOCK_MONOTONIC, &finish);  //for cudaMemcpy version
+    elapsed = (finish.tv_sec - start.tv_sec);  //for cudaMemcpy version
+    elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;  //for cudaMemcpy version
+    printf("cudaMemCpy took %f seconds\n", elapsed);  //for cudaMemcpy version
+
 
 	//start file output timing
     printf("\nStarting file output...\n");
